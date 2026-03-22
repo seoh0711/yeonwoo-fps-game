@@ -21,7 +21,7 @@
     }
 
     #instructions h1 { font-size: 48px; margin-bottom: 20px; }
-    #instructions p { font-size: 18px; line-height: 1.8; color: #ccc; }
+    #instructions p { font-size: 16px; line-height: 2; color: #ccc; }
     #instructions .key {
       display: inline-block; background: #333; padding: 4px 12px;
       border-radius: 4px; font-family: monospace; color: #fff;
@@ -66,6 +66,97 @@
       transition: opacity 0.1s;
       color: #ff0; font-size: 24px; font-weight: bold;
     }
+
+    /* Wave info */
+    #wave-info {
+      position: fixed; top: 20px; left: 50%;
+      transform: translateX(-50%);
+      color: #fff; font-family: 'Segoe UI', sans-serif;
+      font-size: 20px; font-weight: bold;
+      z-index: 5; pointer-events: none; text-align: center;
+      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    #wave-progress { font-size: 14px; font-weight: normal; color: #ccc; margin-top: 4px; }
+
+    #wave-announce {
+      position: fixed; top: 40%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ff0; font-family: 'Segoe UI', sans-serif;
+      font-size: 48px; font-weight: bold;
+      z-index: 7; pointer-events: none;
+      text-shadow: 0 0 20px rgba(255,255,0,0.5);
+      opacity: 0; transition: opacity 0.3s;
+    }
+
+    /* Weapon slots */
+    #weapon-slots {
+      position: fixed; bottom: 20px; right: 20px;
+      display: flex; gap: 8px;
+      z-index: 5; pointer-events: none;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .weapon-slot {
+      width: 80px; padding: 8px; text-align: center;
+      background: rgba(0,0,0,0.5); border: 2px solid #555;
+      border-radius: 6px; color: #aaa; font-size: 11px;
+    }
+    .weapon-slot.active {
+      border-color: #ff0; color: #fff; background: rgba(255,255,0,0.1);
+    }
+    .weapon-slot .slot-key {
+      font-size: 14px; font-weight: bold; color: #ff0; margin-bottom: 4px;
+    }
+    .weapon-slot .slot-name { font-size: 13px; font-weight: bold; }
+    .weapon-slot .slot-ammo { font-size: 11px; margin-top: 4px; color: #ccc; }
+
+    /* Heal kits */
+    #heal-kits {
+      position: fixed; bottom: 80px; left: 20px;
+      color: #4f4; font-family: 'Segoe UI', sans-serif;
+      font-size: 16px; z-index: 5; pointer-events: none;
+    }
+
+    /* Base indicator */
+    #base-indicator {
+      position: fixed; bottom: 50%; left: 50%;
+      transform: translateX(-50%);
+      color: #4f4; font-family: 'Segoe UI', sans-serif;
+      font-size: 18px; font-weight: bold; z-index: 5;
+      pointer-events: none; opacity: 0; transition: opacity 0.3s;
+      text-shadow: 0 0 10px rgba(0,255,0,0.5);
+    }
+
+    /* Pickup prompt */
+    #pickup-prompt {
+      position: fixed; bottom: 40%; left: 50%;
+      transform: translateX(-50%);
+      color: #4f4; font-family: 'Segoe UI', sans-serif;
+      font-size: 16px; z-index: 5; pointer-events: none;
+      opacity: 0; transition: opacity 0.2s;
+    }
+
+    /* Damage direction indicators */
+    #damage-indicators { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+    .damage-ind {
+      position: absolute; opacity: 0;
+      transition: opacity 0.05s;
+    }
+    #dmg-top {
+      top: 0; left: 10%; right: 10%; height: 25%;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,0,0,0.7) 0%, transparent 70%);
+    }
+    #dmg-bottom {
+      bottom: 0; left: 10%; right: 10%; height: 25%;
+      background: radial-gradient(ellipse at 50% 100%, rgba(255,0,0,0.7) 0%, transparent 70%);
+    }
+    #dmg-left {
+      left: 0; top: 10%; bottom: 10%; width: 25%;
+      background: radial-gradient(ellipse at 0% 50%, rgba(255,0,0,0.7) 0%, transparent 70%);
+    }
+    #dmg-right {
+      right: 0; top: 10%; bottom: 10%; width: 25%;
+      background: radial-gradient(ellipse at 100% 50%, rgba(255,0,0,0.7) 0%, transparent 70%);
+    }
   </style>
 </head>
 <body>
@@ -73,9 +164,12 @@
     <div id="instructions">
       <h1>FPS GAME</h1>
       <p>
-        <span class="key">W</span> <span class="key">A</span> <span class="key">S</span> <span class="key">D</span> 이동<br>
+        <span class="key">W</span> <span class="key">A</span> <span class="key">S</span> <span class="key">D</span> 이동 &nbsp;
         <span class="key">마우스</span> 조준 &nbsp; <span class="key">클릭</span> 발사<br>
-        <span class="key">Space</span> 점프 &nbsp; <span class="key">R</span> 재장전<br><br>
+        <span class="key">Space</span> 점프 &nbsp; <span class="key">R</span> 재장전<br>
+        <span class="key">1</span> 샷건 &nbsp; <span class="key">2</span> 라이플 &nbsp; <span class="key">3</span> 스나이퍼<br>
+        <span class="key">F</span> 회복킷 줍기 &nbsp; <span class="key">Q</span> 회복킷 사용<br><br>
+        초록색 아지트 안에서 HP가 회복됩니다<br><br>
         클릭하여 시작
       </p>
     </div>
@@ -89,8 +183,45 @@
     <div style="margin-top: 8px;">탄약: <span id="ammo">30</span> / 30</div>
   </div>
 
+  <div id="heal-kits">회복킷: <span id="heal-kit-count">0</span> / 3 &nbsp; [Q 사용]</div>
+
   <div id="score">SCORE: <span id="score-value">0</span></div>
+
+  <div id="wave-info">
+    WAVE <span id="wave-num">1</span>
+    <div id="wave-progress">적: <span id="enemies-left">0</span>명 남음</div>
+  </div>
+
+  <div id="wave-announce"></div>
+
+  <div id="weapon-slots">
+    <div class="weapon-slot" id="slot-0">
+      <div class="slot-key">1</div>
+      <div class="slot-name">샷건</div>
+      <div class="slot-ammo" id="slot-ammo-0">8/8</div>
+    </div>
+    <div class="weapon-slot active" id="slot-1">
+      <div class="slot-key">2</div>
+      <div class="slot-name">라이플</div>
+      <div class="slot-ammo" id="slot-ammo-1">30/30</div>
+    </div>
+    <div class="weapon-slot" id="slot-2">
+      <div class="slot-key">3</div>
+      <div class="slot-name">스나이퍼</div>
+      <div class="slot-ammo" id="slot-ammo-2">5/5</div>
+    </div>
+  </div>
+
+  <div id="base-indicator">+ 아지트 - HP 회복 중 +</div>
+  <div id="pickup-prompt">[F] 회복킷 줍기</div>
   <div id="hit-marker">X</div>
+
+  <div id="damage-indicators">
+    <div class="damage-ind" id="dmg-top"></div>
+    <div class="damage-ind" id="dmg-bottom"></div>
+    <div class="damage-ind" id="dmg-left"></div>
+    <div class="damage-ind" id="dmg-right"></div>
+  </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>
