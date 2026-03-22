@@ -135,6 +135,33 @@
       opacity: 0; transition: opacity 0.2s;
     }
 
+    /* Scope overlay */
+    #scope-overlay {
+      position: fixed; inset: 0; z-index: 6;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .scope-circle {
+      position: absolute; top: 50%; left: 50%;
+      width: 300px; height: 300px;
+      transform: translate(-50%, -50%);
+      border: 2px solid rgba(255,255,255,0.6);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2000px rgba(0,0,0,0.7);
+    }
+    .scope-cross-h {
+      position: absolute; top: 50%; left: 50%;
+      width: 280px; height: 1px;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.5);
+    }
+    .scope-cross-v {
+      position: absolute; top: 50%; left: 50%;
+      width: 1px; height: 280px;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.5);
+    }
+
     /* Damage direction indicators */
     #damage-indicators { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
     .damage-ind {
@@ -212,7 +239,13 @@
     </div>
   </div>
 
-  <div id="base-indicator">+ 아지트 - HP 회복 중 +</div>
+  <div id="base-indicator">+ 안전지대 - HP 회복 중 (공격 불가) +</div>
+
+  <div id="scope-overlay">
+    <div class="scope-cross-h"></div>
+    <div class="scope-cross-v"></div>
+    <div class="scope-circle"></div>
+  </div>
   <div id="pickup-prompt">[F] 회복킷 줍기</div>
   <div id="hit-marker">X</div>
 

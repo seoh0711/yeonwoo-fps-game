@@ -103,7 +103,7 @@ const state = {
   currentWeapon: 1,
   ammo: [8, 30, 5],
   reloading: false, switching: false,
-  lastFireTime: 0,
+  lastFireTime: 0, scoped: false,
   healKits: 0, maxHealKits: 3,
   inBase: false,
   moveForward: false, moveBackward: false, moveLeft: false, moveRight: false,
@@ -343,48 +343,45 @@ startWave();
 // ============================================================
 const weaponModels = [];
 
+function addMesh(group, geom, color, x, y, z, rx, ry, rz) {
+  const m = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ color }));
+  m.position.set(x, y, z);
+  if (rx || ry || rz) m.rotation.set(rx || 0, ry || 0, rz || 0);
+  group.add(m);
+  return m;
+}
+
 function buildShotgun() {
   const g = new THREE.Group();
-  // Wide short barrel
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.07, 0.5), new THREE.MeshStandardMaterial({ color: 0x222222 })), { position: new THREE.Vector3(0, 0, -0.25) }));
-  // Second barrel
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.07, 0.5), new THREE.MeshStandardMaterial({ color: 0x222222 })), { position: new THREE.Vector3(0, 0.07, -0.25) }));
-  // Body
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.12, 0.25), new THREE.MeshStandardMaterial({ color: 0x443322 })), { position: new THREE.Vector3(0, -0.03, 0.05) }));
-  // Grip
-  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.15, 0.08), new THREE.MeshStandardMaterial({ color: 0x331100 }));
-  grip.position.set(0, -0.14, 0.1); grip.rotation.x = -0.3; g.add(grip);
-  // Pump
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.15), new THREE.MeshStandardMaterial({ color: 0x555555 })), { position: new THREE.Vector3(0, -0.05, -0.15) }));
+  addMesh(g, new THREE.BoxGeometry(0.08, 0.07, 0.5), 0x222222, 0, 0, -0.25);
+  addMesh(g, new THREE.BoxGeometry(0.08, 0.07, 0.5), 0x222222, 0, 0.07, -0.25);
+  addMesh(g, new THREE.BoxGeometry(0.1, 0.12, 0.25), 0x443322, 0, -0.03, 0.05);
+  addMesh(g, new THREE.BoxGeometry(0.07, 0.15, 0.08), 0x331100, 0, -0.14, 0.1, -0.3);
+  addMesh(g, new THREE.BoxGeometry(0.06, 0.06, 0.15), 0x555555, 0, -0.05, -0.15);
   return g;
 }
 
 function buildRifle() {
   const g = new THREE.Group();
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.6), new THREE.MeshStandardMaterial({ color: 0x222222 })), { position: new THREE.Vector3(0, 0, -0.3) }));
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.3), new THREE.MeshStandardMaterial({ color: 0x333333 })), { position: new THREE.Vector3(0, -0.05, 0) }));
-  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.15, 0.08), new THREE.MeshStandardMaterial({ color: 0x442200 }));
-  grip.position.set(0, -0.15, 0.08); grip.rotation.x = -0.3; g.add(grip);
-  // Magazine
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, 0.06), new THREE.MeshStandardMaterial({ color: 0x444444 })), { position: new THREE.Vector3(0, -0.15, -0.05) }));
+  addMesh(g, new THREE.BoxGeometry(0.05, 0.05, 0.6), 0x222222, 0, 0, -0.3);
+  addMesh(g, new THREE.BoxGeometry(0.08, 0.15, 0.3), 0x333333, 0, -0.05, 0);
+  addMesh(g, new THREE.BoxGeometry(0.06, 0.15, 0.08), 0x442200, 0, -0.15, 0.08, -0.3);
+  addMesh(g, new THREE.BoxGeometry(0.04, 0.12, 0.06), 0x444444, 0, -0.15, -0.05);
   return g;
 }
 
 function buildSniper() {
   const g = new THREE.Group();
-  // Long barrel
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.9), new THREE.MeshStandardMaterial({ color: 0x1a1a1a })), { position: new THREE.Vector3(0, 0, -0.45) }));
+  addMesh(g, new THREE.BoxGeometry(0.04, 0.04, 0.9), 0x1a1a1a, 0, 0, -0.45);
   // Scope
-  g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 8), new THREE.MeshStandardMaterial({ color: 0x111111 })), { position: new THREE.Vector3(0, 0.06, -0.1), rotation: new THREE.Euler(0, 0, Math.PI / 2) }));
+  const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 8), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+  scope.position.set(0, 0.06, -0.1); scope.rotation.set(0, 0, Math.PI / 2); g.add(scope);
   // Scope lens
-  g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.01, 8), new THREE.MeshStandardMaterial({ color: 0x4444ff, emissive: 0x2222ff, emissiveIntensity: 0.3 })), { position: new THREE.Vector3(0, 0.06, -0.2), rotation: new THREE.Euler(0, 0, Math.PI / 2) }));
-  // Body
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.1, 0.35), new THREE.MeshStandardMaterial({ color: 0x2a2a2a })), { position: new THREE.Vector3(0, -0.04, 0) }));
-  // Stock
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.08, 0.2), new THREE.MeshStandardMaterial({ color: 0x442200 })), { position: new THREE.Vector3(0, -0.04, 0.25) }));
-  // Grip
-  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.13, 0.06), new THREE.MeshStandardMaterial({ color: 0x331100 }));
-  grip.position.set(0, -0.14, 0.08); grip.rotation.x = -0.3; g.add(grip);
+  const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.01, 8), new THREE.MeshStandardMaterial({ color: 0x4444ff, emissive: 0x2222ff, emissiveIntensity: 0.3 }));
+  lens.position.set(0, 0.06, -0.2); lens.rotation.set(0, 0, Math.PI / 2); g.add(lens);
+  addMesh(g, new THREE.BoxGeometry(0.06, 0.1, 0.35), 0x2a2a2a, 0, -0.04, 0);
+  addMesh(g, new THREE.BoxGeometry(0.05, 0.08, 0.2), 0x442200, 0, -0.04, 0.25);
+  addMesh(g, new THREE.BoxGeometry(0.05, 0.13, 0.06), 0x331100, 0, -0.14, 0.08, -0.3);
   return g;
 }
 
@@ -404,6 +401,8 @@ scene.add(camera);
 
 function switchWeapon(index) {
   if (index === state.currentWeapon || state.switching || state.reloading) return;
+  // Exit scope if switching away from sniper
+  if (state.scoped) toggleScope();
   state.switching = true;
   playWeaponSwitch();
 
@@ -450,6 +449,7 @@ function createBulletTrail(from, to) {
 const raycaster = new THREE.Raycaster();
 
 function shoot() {
+  if (state.inBase) return; // No attacking in base
   const now = performance.now();
   const weapon = WEAPONS[state.currentWeapon];
   if (state.reloading || state.switching) return;
@@ -548,7 +548,7 @@ function updateEnemies(delta) {
       pos.z += dir.z * enemySpeed * delta;
     }
     const now = performance.now();
-    if (dist < 40 && now - enemy.lastShot > enemy.shootInterval) {
+    if (dist < 40 && !state.inBase && now - enemy.lastShot > enemy.shootInterval) {
       enemy.lastShot = now;
       playEnemyShootSound();
       takeDamage(5 + Math.floor(Math.random() * 5), pos);
@@ -646,8 +646,32 @@ document.addEventListener('keyup', (e) => {
 });
 
 document.addEventListener('mousedown', (e) => {
-  if (e.button === 0 && controls.isLocked) shoot();
+  if (!controls.isLocked) return;
+  if (e.button === 0) shoot();
+  if (e.button === 2 && state.currentWeapon === 2) toggleScope();
 });
+
+document.addEventListener('mouseup', (e) => {
+  if (e.button === 2 && state.scoped) toggleScope();
+});
+
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+function toggleScope() {
+  state.scoped = !state.scoped;
+  const scopeEl = document.getElementById('scope-overlay');
+  const crosshairEl = document.getElementById('crosshair');
+  if (state.scoped) {
+    camera.fov = 20;
+    scopeEl.style.opacity = '1';
+    crosshairEl.style.display = 'none';
+  } else {
+    camera.fov = 75;
+    scopeEl.style.opacity = '0';
+    crosshairEl.style.display = '';
+  }
+  camera.updateProjectionMatrix();
+}
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
