@@ -39,6 +39,7 @@ function playRifleSound() { playNoise(0.1, 0.5, 3, null); playTone(150, 30, 'sin
 function playSniperSound() { playNoise(0.2, 0.8, 2, null); playTone(80, 20, 'sine', 0.7, 0.25); playTone(2000, 800, 'sine', 0.15, 0.3); }
 function playHitSound() { playTone(800, 1200, 'triangle', 0.3, 0.15); }
 function playEnemyDeathSound() { playTone(600, 80, 'sawtooth', 0.25, 0.4); }
+function playHeadshotSound() { playTone(1500, 2500, 'sine', 0.4, 0.15); playTone(2000, 3000, 'triangle', 0.3, 0.2); playNoise(0.05, 0.3, 8, 3000); }
 function playDamageSound() { playTone(80, 40, 'sine', 0.5, 0.25); playTone(400, 200, 'square', 0.15, 0.15); }
 function playEnemyShootSound() { playNoise(0.08, 0.2, 5, 600); }
 function playHealSound() { playTone(400, 800, 'sine', 0.3, 0.3); playTone(600, 1000, 'sine', 0.2, 0.3); }
@@ -294,7 +295,7 @@ function createEnemy(x, z) {
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.4, 8), new THREE.MeshStandardMaterial({ color: 0xcc3333 }));
   body.position.y = 1.2; body.castShadow = true; group.add(body);
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), new THREE.MeshStandardMaterial({ color: 0xffcc99 }));
-  head.position.y = 2.15; head.castShadow = true; group.add(head);
+  head.position.y = 2.15; head.castShadow = true; head.userData.isHead = true; group.add(head);
   const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
   const le = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), eyeMat); le.position.set(-0.12, 2.2, 0.3); group.add(le);
   const re = new THREE.Mesh(new THREE.SphereGeometry(0.06, 6, 6), eyeMat); re.position.set(0.12, 2.2, 0.3); group.add(re);
@@ -487,14 +488,19 @@ function shoot() {
       const hitObj = hits[0].object;
       for (const enemy of enemies) {
         if (!enemy.alive || !enemy.mesh.children.includes(hitObj)) continue;
-        enemy.hp -= weapon.damage;
-        hitObj.material.emissive = new THREE.Color(0xff0000);
-        setTimeout(() => { hitObj.material.emissive = new THREE.Color(0x000000); }, 100);
-        playHitSound();
+        const isHeadshot = hitObj.userData.isHead === true;
+        if (isHeadshot) {
+          enemy.hp = 0; // Instant kill
+        } else {
+          enemy.hp -= weapon.damage;
+        }
+        hitObj.material.emissive = new THREE.Color(isHeadshot ? 0xffff00 : 0xff0000);
+        setTimeout(() => { hitObj.material.emissive = new THREE.Color(0x000000); }, isHeadshot ? 300 : 100);
+        if (isHeadshot) { playHeadshotSound(); showHeadshotMarker(); } else { playHitSound(); }
         if (enemy.hp <= 0) {
           enemy.alive = false;
           scene.remove(enemy.mesh);
-          state.score += 100;
+          state.score += isHeadshot ? 250 : 100;
           playEnemyDeathSound();
           onEnemyKilled();
           // 30% chance to drop heal kit
@@ -530,6 +536,14 @@ function showHitMarker() {
   const el = document.getElementById('hit-marker');
   el.style.opacity = '1';
   setTimeout(() => { el.style.opacity = '0'; }, 200);
+}
+
+function showHeadshotMarker() {
+  const el = document.getElementById('headshot-marker');
+  el.style.opacity = '1';
+  el.style.transform = 'translate(-50%, -50%) scale(1.5)';
+  setTimeout(() => { el.style.transform = 'translate(-50%, -50%) scale(1)'; }, 100);
+  setTimeout(() => { el.style.opacity = '0'; }, 800);
 }
 
 // ============================================================
