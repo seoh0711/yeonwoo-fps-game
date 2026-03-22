@@ -1,0 +1,19 @@
+{
+  "name": "yeonwoo-fps-game",
+  "version": "1.0.0",
+  "description": "1인칭 슈팅 게임 (Three.js FPS Game)",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["fps", "game", "threejs", "shooting"],
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^6.0.0"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  }
+}
