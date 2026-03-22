@@ -665,10 +665,6 @@ document.addEventListener('mousedown', (e) => {
   if (e.button === 2 && state.currentWeapon === 2) toggleScope();
 });
 
-document.addEventListener('mouseup', (e) => {
-  if (e.button === 2 && state.scoped) toggleScope();
-});
-
 document.addEventListener('contextmenu', (e) => e.preventDefault());
 
 function toggleScope() {
